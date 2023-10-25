@@ -26,6 +26,12 @@ from transformers import (
     T5Tokenizer,
 )
 
+"""
+Dependency:
+pip3 install git+https://github.com/huggingface/peft.git@2822398fbe896f25d4dac5e468624dc5fd65a51b
+"""
+from peft import PeftModel
+
 from fastchat.constants import CPU_ISA
 from fastchat.conversation import Conversation, get_conv_template
 from fastchat.model.compression import load_compress_model
