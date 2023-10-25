@@ -163,6 +163,7 @@ def load_model(
     model_path: str,
     device: str = "cuda",
     num_gpus: int = 1,
+    lora_path: Optional[str] = None,
     max_gpu_memory: Optional[str] = None,
     dtype: Optional[torch.dtype] = None,
     load_8bit: bool = False,
@@ -305,6 +306,17 @@ def load_model(
     # Load model
     model, tokenizer = adapter.load_model(model_path, kwargs)
 
+    if lora_path: 
+        print(f"Loading the LoRA adapter from {lora_path}")
+        lora_model = PeftModel.from_pretrained(
+            model,
+            lora_path,
+            torch_dtype=kwargs["torch_dtype"]
+        )
+
+        print("Applying the LoRA")
+        model = lora_model.merge_and_unload()
+
     if (
         device == "cpu"
         and kwargs["torch_dtype"] is torch.bfloat16
@@ -391,6 +403,12 @@ def add_model_args(parser):
         type=str,
         default="lmsys/vicuna-7b-v1.5",
         help="The path to the weights. This can be a local folder or a Hugging Face repo ID.",
+    )
+    parser.add_argument(
+        "--lora-path",
+        type=str,
+        default=None,
+        help="The path to the weights of lora adapter. This can be a local folder or a Hugging Face repo ID.",
     )
     parser.add_argument(
         "--revision",
